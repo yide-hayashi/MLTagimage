@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>True</UseWindowsForms>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="1987c3c5841dcb7d98e7151bf1e4ace0.PNG" />
+    <None Remove="EmIgAijU4AMLWDh.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="1987c3c5841dcb7d98e7151bf1e4ace0.PNG" />
+    <Resource Include="EmIgAijU4AMLWDh.jpg" />
+  </ItemGroup>
+
+</Project>
