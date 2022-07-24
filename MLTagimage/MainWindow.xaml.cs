@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
+using mainWin;
 
 namespace MLTagimage
 {
@@ -86,7 +87,7 @@ namespace MLTagimage
             KeyboardWatching();
             Thread th = new Thread(CatchMousePosition);
             th.Start();
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < 30; i++)
             {
                 Tag.Items.Add(i.ToString());
             }
@@ -334,12 +335,15 @@ namespace MLTagimage
                     return CallNextHookEx(m_HookHandle, nCode, wParam, lParam);
 
                 }
-
+                  if (!Keyboard.IsKeyUp(Key.Delete))
+                {
+                    removePointList();
+                }
                 //抓到F10被按了之後 開始設定矩陣
                 if (!Keyboard.IsKeyUp(Key.F10))
                 {
+                    sv.Focus();
                     addPoint();
-
                 }
                 if (!Keyboard.IsKeyUp(Key.Escape))
                 {
@@ -348,6 +352,7 @@ namespace MLTagimage
                 }
                  if (!Keyboard.IsKeyUp(Key.Space))
                 {
+                    sv.Focus();
                     if (spaceispressed % 2 == 0)
                     {
                         P1.Content = "P1:" + showlbl.Content;
@@ -416,6 +421,10 @@ namespace MLTagimage
             catch (Exception ex) { }
             return CallNextHookEx(m_HookHandle, nCode, wParam, lParam);
         }
+        private void clearP1P2_Click(object sender, RoutedEventArgs e)
+        {
+            clearP1P2();
+        }
         private void clearP1P2()
         {
             P1.Content = "P1:";
@@ -450,12 +459,38 @@ namespace MLTagimage
                     clearP1P2();
                 }
             }
-            catch (Exception e) { }
+            catch (Exception ex) { }
         }
 
         private void addList_Click(object sender, RoutedEventArgs e)
         {
             addPoint();
+        }
+
+        private void removePointList()
+        {
+            try
+            {
+                if (PointList.IsKeyboardFocusWithin && PointList.Items.Count > 0 && PointList.SelectedIndex > 0)
+                {
+                    PointList.Items.RemoveAt(PointList.SelectedIndex);
+                }
+            }
+            catch (Exception ex) { }
+        }
+
+        private void RemovePointListitem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if(PointList.Items.Count>0 && PointList.SelectedIndex >0)
+                {
+                    PointList.Items.RemoveAt(PointList.SelectedIndex);
+                }
+               
+            }
+            catch (Exception ex) { }
+            
         }
         #endregion
         #region  KeyStateInfo
@@ -675,9 +710,34 @@ namespace MLTagimage
                 get { return _isToggled; }
             }
         }
+
         #endregion
 
-        
+        private void outputdata_Click(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog savepath = new SaveFileDialog();
+            savepath.DefaultExt = ".txt";
+            savepath.Filter = "Text documents (.txt)|*.txt";
+            
+            if (savepath.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                // Open document
+                string filename = savepath.FileName;
+                fileio fio = new fileio();
+                List<string> strings = new List<string>();
+                foreach (var a in PointList.Items)
+                {
+                    strings.Add(a.ToString());
+                }
+                fio.fileDataCreatUTF8(strings,savepath.FileName);
+            }
+        }
+
+        private void PointList_GotFocus(object sender, RoutedEventArgs e)
+        {
+
+        }
+
     }
     class imgsubName
     {

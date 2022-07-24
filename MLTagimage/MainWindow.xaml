@@ -5,12 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MLTagimage"
         mc:Ignorable="d"
-        Title="MainWindow" Height="598" Width="1078" Closing="Window_Closing" Focusable="False" IsTabStop="False">
+        Title="TagTools" Height="708" Width="1234" Closing="Window_Closing" Focusable="False" IsTabStop="False">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="223*"/>
             <RowDefinition Height="251*"/>
-            <RowDefinition Height="108*"/>
+            <RowDefinition Height="109*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="125*"/>
@@ -34,14 +34,16 @@
 
         <Button x:Name="open" Content="開啟資料夾" Margin="0,0,10,0" VerticalAlignment="Top" Height="20" Click="open_Click" HorizontalAlignment="Right" Width="73"/>
         <Label x:Name="imgdir" Content="Label" Margin="10,2,88,0" VerticalAlignment="Top" Height="26"/>
-        <ListBox x:Name="imglist" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="3,32,0,0" Grid.Column="1" SelectionChanged="imglist_SelectionChanged"/>
-        <ListBox x:Name="PointList" Grid.Column="1" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="0,4,0,5" Grid.Row="1"/>
-        <Button x:Name="outputdata" Grid.Column="1" Content="完成" Margin="0,0,10,15" Grid.Row="2" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="50"/>
-        <Button x:Name="addList" Grid.Column="1" Content="新增" HorizontalAlignment="Left" Margin="85,0,0,15" Grid.Row="2" Width="45" Height="20" VerticalAlignment="Bottom" Click="addList_Click" Focusable="False" IsTabStop="False"/>
-        <ComboBox x:Name="Tag" Grid.Column="1" HorizontalAlignment="Left" Margin="50,4,0,0" Grid.Row="2" VerticalAlignment="Top" Width="70" Height="22"/>
-        <Label x:Name="tag" Grid.Column="1" Content="Tag:" HorizontalAlignment="Left" Margin="9,2,0,0" Grid.Row="2" VerticalAlignment="Top" Height="26" Width="31"/>
-        <Label x:Name="P1" Grid.Column="1" Content="P1:" HorizontalAlignment="Left" Margin="11,0,0,57" Grid.Row="2" VerticalAlignment="Bottom" Height="26" Width="109"/>
-        <Label x:Name="P2" Grid.Column="1" Content="P2:" HorizontalAlignment="Left" Margin="11,43,0,0" Grid.Row="2" VerticalAlignment="Top" Height="26" Width="119"/>
+        <ListBox x:Name="imglist" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="0,32,0,1" Grid.Column="1" SelectionChanged="imglist_SelectionChanged" Focusable="False"/>
+        <ListBox x:Name="PointList" Grid.Column="1" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="0,0,0,5" Grid.Row="1" Focusable="False" GotFocus="PointList_GotFocus"/>
+        <Button x:Name="outputdata" Grid.Column="1" Content="完成" Margin="0,0,3,10" Grid.Row="2" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="66" Click="outputdata_Click"/>
+        <Button x:Name="addList" Grid.Column="1" Content="新增(F10)" HorizontalAlignment="Left" Margin="10,0,0,37" Grid.Row="2" Width="61" Height="20" VerticalAlignment="Bottom" Click="addList_Click" Focusable="False" IsTabStop="False"/>
+        <ComboBox x:Name="Tag" Grid.Column="1" HorizontalAlignment="Left" Margin="42,7,0,0" Grid.Row="2" VerticalAlignment="Top" Width="77" Height="22" Focusable="False"/>
+        <Label x:Name="tag" Grid.Column="1" Content="Tag:" HorizontalAlignment="Left" Margin="6,2,0,0" Grid.Row="2" VerticalAlignment="Top" Height="26" Width="31"/>
+        <Label x:Name="P1" Grid.Column="1" Content="P1:" HorizontalAlignment="Left" Margin="6,24,0,73" Grid.Row="2" Width="115"/>
+        <Label x:Name="P2" Content="P2:" HorizontalAlignment="Left" Margin="6,46,0,0" Grid.Row="2" VerticalAlignment="Top" Height="26" Width="115" Grid.Column="1"/>
+        <Button x:Name="clearP1P2but" Grid.Column="1" Content="清空(ESC)" HorizontalAlignment="Left" Margin="10,99,0,0" Grid.Row="2" VerticalAlignment="Top" Width="61" Click="clearP1P2_Click"/>
+        <Button x:Name="RemovePointListitem" Grid.Column="1" Content="刪除(DEL)" HorizontalAlignment="Right" Margin="0,7,3,0" Grid.Row="2" VerticalAlignment="Top" Width="66" Height="21" Click="RemovePointListitem_Click"/>
 
 
     </Grid>
