@@ -18,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 using mainWin;
+using WpfApp1bot;
 
 namespace MLTagimage
 {
@@ -80,6 +81,7 @@ namespace MLTagimage
 
         int spaceispressed = 0;
         int index = 0;
+        List<LoadedimgDetail> loadedimgDetails = new List<LoadedimgDetail>();
         public MainWindow()
         {
             InitializeComponent();
@@ -97,13 +99,22 @@ namespace MLTagimage
 
         private void open_Click(object sender, RoutedEventArgs e)
         {
-            FolderBrowserDialog path = new FolderBrowserDialog();
-            path.SelectedPath =  "D:\\素材\\https\\H";
-            //AppDomain.CurrentDomain.BaseDirectory
-            path.Description = "請選擇圖片所在資料夾";
-            path.ShowDialog();
-            imgdir.Content = path.SelectedPath;
-            PathFilesRead();
+            try
+            {
+                FolderBrowserDialog path = new FolderBrowserDialog();
+                if (Directory.Exists("D:\\素材\\https\\H"))
+                    path.SelectedPath = "D:\\素材\\https\\H";
+                else
+                {
+                    path.SelectedPath = AppDomain.CurrentDomain.BaseDirectory;
+                }
+                //AppDomain.CurrentDomain.BaseDirectory
+                path.Description = "請選擇圖片所在資料夾";
+                path.ShowDialog();
+                imgdir.Content = path.SelectedPath;
+                PathFilesRead();
+            }
+            catch (Exception ex) { }
         
 
         }
@@ -137,37 +148,60 @@ namespace MLTagimage
 
         private void imglist_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            FileStream fstream = new FileStream(imgdir.Content.ToString() + "\\" + (imglist.SelectedItem as ListBoxItem).Content.ToString(), FileMode.Open);
-            BitmapImage bitmap = new BitmapImage();
+            FileStream fstream;
+            try
+            {
+                fstream = new FileStream(imgdir.Content.ToString() + "\\" + (imglist.SelectedItem as ListBoxItem).Content.ToString(), FileMode.Open);
+                BitmapImage bitmap = new BitmapImage();
 
-            bitmap.BeginInit();
-            bitmap.StreamSource = fstream;
-            bitmap.CacheOption = BitmapCacheOption.OnLoad;
-            bitmap.EndInit();
+                bitmap.BeginInit();
+                bitmap.StreamSource = fstream;
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+
+
+                if (bitmap.PixelHeight != bitmap.Height && bitmap.PixelWidth != bitmap.Height)
+                {
+                    MemoryStream ms = new MemoryStream();
+                    fstream.CopyTo(ms);
+                    Bitmap bmp = CreateThumbnail((Stream)ms, bitmap.PixelWidth, bitmap.PixelHeight);
+                    showimg.BeginInit(); //要開啟
+                    showimg.Stretch = Stretch.None;
+                    showimg.Width = bitmap.PixelWidth;
+                    showimg.Height = bitmap.PixelHeight;
+                    if (bmp != null)
+                    {
+                        showimg.Source = BitmapToBitmapSource(bmp);
+                        loadedimgDetails.Add(new()
+                        {
+                            FileName = (imglist.SelectedItem as ListBoxItem).Content.ToString(),
+                            PixelWidth = bitmap.PixelWidth,
+                            PixelHeight = bitmap.PixelHeight
+                        });
+                    }
+                    else
+                        System.Windows.Forms.MessageBox.Show("圖片格式輸入有問題");
+                    showimg.EndInit(); //關閉
+                }
+                else
+                {
+                    showimg.BeginInit(); //要開啟
+                    showimg.Stretch = Stretch.None;
+                    showimg.Width = bitmap.PixelWidth;
+                    showimg.Height = bitmap.PixelHeight;
+                    showimg.Source = bitmap;
+                    showimg.EndInit(); //關閉
+                    loadedimgDetails.Add(new() { FileName = (imglist.SelectedItem as ListBoxItem).Content.ToString(),
+                        PixelWidth = bitmap.PixelWidth, PixelHeight = bitmap.PixelHeight });
+                }
+                fstream.Close();
+                
+            }
+            catch(Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show("圖片格式輸入有問題");
+            }
             
-
-            if (bitmap.PixelHeight != bitmap.Height && bitmap.PixelWidth != bitmap.Height)
-            {
-                MemoryStream ms = new MemoryStream();
-                fstream.CopyTo(ms);
-                Bitmap bmp = CreateThumbnail((Stream)ms, bitmap.PixelWidth, bitmap.PixelHeight);
-                showimg.BeginInit(); //要開啟
-                showimg.Stretch = Stretch.None;
-                showimg.Width = bitmap.PixelWidth;
-                showimg.Height = bitmap.PixelHeight;
-                showimg.Source = BitmapToBitmapSource(bmp);
-                showimg.EndInit(); //關閉
-            }
-            else
-            {
-                showimg.BeginInit(); //要開啟
-                showimg.Stretch = Stretch.None;
-                showimg.Width = bitmap.PixelWidth;
-                showimg.Height = bitmap.PixelHeight;
-                showimg.Source = bitmap;
-                showimg.EndInit(); //關閉
-            }
-            fstream.Close();
 
 
             //            WPF引入了統一資源標識Uri(Unified Resource Identifier)來標識和訪問資源。
@@ -243,14 +277,20 @@ namespace MLTagimage
         /// <returns></returns>
         private BitmapSource BitmapToBitmapSource(System.Drawing.Bitmap bitmap)
         {
-            IntPtr ptr = bitmap.GetHbitmap();
-            BitmapSource result =
-                System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-                    ptr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-            //release resource
-            DeleteObject(ptr);
-
-            return result;
+            try
+            {
+                IntPtr ptr = bitmap.GetHbitmap();
+                BitmapSource result =
+                    System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                        ptr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                //release resource
+                DeleteObject(ptr);
+                return result;
+            }
+            catch (Exception exc) {
+                return null;
+            }
+            
         }
 
         /// <summary>
@@ -715,10 +755,137 @@ namespace MLTagimage
 
         private void outputdata_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                if (!(bool)darknetYolo.IsChecked)
+                {
+                    ChinaVerYoloInputtype();
+                }
+                else
+                {
+                    List<DarkNetYoLoObj> darkNetYoLoObjs=DarknetYoloInputtype();
+                    DarknetYoloInputSave(darkNetYoLoObjs, "../plate_detection/");
+                }
+            }
+            catch (Exception ex) { }
+        }
+        private List<DarkNetYoLoObj> DarknetYoloInputtype()
+        {
+            List<DarkNetYoLoObj> darkNetYoLoObjs = new List<DarkNetYoLoObj>();
+            imgsubName imgsubName = new imgsubName();
+            List <DarkNetYoLoPosition> darkNetYoLoPosition = new List<DarkNetYoLoPosition>();
+            regset regset = new regset();
+            string temp,FileName;
+            double image_w=-1,image_h=-1;
+            double xmax, xmin, ymin, ymax;
+            List<string> position ;
+            List<string> Regtemp;
+            foreach (var i in PointList.Items)
+            {
+                darkNetYoLoPosition.Add(new DarkNetYoLoPosition());
+                temp = i.ToString();
+                FileName = temp.Substring(0, imgsubName.selectindex(temp));
+                foreach(var item in loadedimgDetails)
+                {
+                    if(item.FileName== FileName)
+                    {
+                        image_h = item.PixelHeight;
+                        image_w = item.PixelWidth;
+                    }
+                }
+
+                position = regset.RegSet(temp, @"\d*,\d*,\d*,\d*,\d*");
+
+                foreach(var item in position)
+                {
+                    /* x1,y1,x2,y2,tag*/
+                    Regtemp= regset.RegSet(item, @"\d*");
+                    darkNetYoLoPosition[darkNetYoLoPosition.Count-1].tag = Regtemp[4];
+                    if (Convert.ToInt32(Regtemp[0])> Convert.ToInt32(Regtemp[2]))
+                    {
+                        xmax = Convert.ToDouble(Regtemp[0]);
+                        xmin= Convert.ToDouble(Regtemp[2]);
+                    }
+                    else
+                    {
+                        xmax = Convert.ToDouble(Regtemp[2]);
+                        xmin = Convert.ToDouble(Regtemp[0]);
+                    }
+                    if(Convert.ToInt32(Regtemp[1]) > Convert.ToInt32(Regtemp[3]))
+                    {
+                        ymax = Convert.ToDouble(Regtemp[1]);
+                        ymin = Convert.ToDouble(Regtemp[3]);
+                    }
+                    else
+                    {
+                        ymax = Convert.ToDouble(Regtemp[3]);
+                        ymin = Convert.ToDouble(Regtemp[1]);
+                    }
+                    darkNetYoLoPosition[darkNetYoLoPosition.Count - 1].x = (float) ((xmin + (xmax - xmin) / 2) * 1.0 / image_w);
+                    darkNetYoLoPosition[darkNetYoLoPosition.Count - 1].y = (float)((ymin + (ymax - ymin) / 2) * 1.0 / image_h);
+                    darkNetYoLoPosition[darkNetYoLoPosition.Count - 1].w = (float)((xmax - xmin) * 1.0 / image_w);
+                    darkNetYoLoPosition[darkNetYoLoPosition.Count - 1].h = (float)((ymax - ymin) * 1.0 / image_h);
+                }
+
+                darkNetYoLoObjs.Add(new DarkNetYoLoObj()
+                {
+                    FileName = FileName,darkNetYoLoPositions= darkNetYoLoPosition 
+                });
+            }
+            return darkNetYoLoObjs;
+        }
+        private void DarknetYoloInputSave(List<DarkNetYoLoObj> darkNetYoLoObjs,string savedir)
+        {
             SaveFileDialog savepath = new SaveFileDialog();
             savepath.DefaultExt = ".txt";
             savepath.Filter = "Text documents (.txt)|*.txt";
-            
+
+            if (savepath.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                if(!Directory.Exists(savepath.FileName.Replace(".txt","")))
+                    Directory.CreateDirectory(savepath.FileName.Replace(".txt", ""));
+                fileio fio = new fileio();
+                List<string> strings = new List<string>();
+                foreach (var a in darkNetYoLoObjs)
+                {
+                    List<string> str = new List<string>();
+                    strings.Add(savedir + Path.GetFileName(savepath.FileName).Replace(".txt", "") + "/"+ a.FileName.ToString());
+                    foreach(var i in a.darkNetYoLoPositions)
+                    {
+                        str.Add(i.tag.ToString() + " " + i.x.ToString() + " " + i.y.ToString() + " " + i.w.ToString() + " " + i.h.ToString());
+                    }
+                    fio.fileDataCreatUTF8(str, savepath.FileName.Replace(".txt", "") + "\\"+ replaceFilename(a.FileName.ToString(),".txt"));
+                }
+                fio.fileDataCreatUTF8(strings, savepath.FileName);
+            }
+        }
+        private string replaceFilename(string str)
+        {
+            imgsubName img = new imgsubName();
+            foreach(string i in img.subName)
+            {
+                if (str.IndexOf(i) == str.Length - i.Length)
+                    return str.Replace(i,"");
+            }
+            return str;
+        }
+        private string replaceFilename(string str,string newwwords)
+        {
+            imgsubName img = new imgsubName();
+            foreach (string i in img.subName)
+            {
+                if (str.IndexOf(i) == str.Length - i.Length)
+                    return str.Replace(i, newwwords);
+            }
+            return str;
+        }
+
+        private void ChinaVerYoloInputtype()
+        {
+            SaveFileDialog savepath = new SaveFileDialog();
+            savepath.DefaultExt = ".txt";
+            savepath.Filter = "Text documents (.txt)|*.txt";
+
             if (savepath.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 // Open document
@@ -729,7 +896,7 @@ namespace MLTagimage
                 {
                     strings.Add(a.ToString());
                 }
-                fio.fileDataCreatUTF8(strings,savepath.FileName);
+                fio.fileDataCreatUTF8(strings, savepath.FileName);
             }
         }
 
@@ -743,7 +910,41 @@ namespace MLTagimage
     {
         public List<string> subName = new List<string>() { ".JPG",".jpg",".jpeg", ".jpe",".jfif", ".jfi", ".jif",
             ".JPEG",".gif",".png", ".bmp", };
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns>找不到會return -1</returns>
+        public int selectindex(string str)
+        {
+            int index;
+            foreach(var i in subName )
+            {
+                index=str.IndexOf(i);
+                if(index >0)
+                    return index + i.Length;
+            }
+            return -1;
+        }
         
     }
-
+    class LoadedimgDetail
+    {
+        public string FileName;
+        public int PixelWidth;
+        public int PixelHeight;
+    }
+    class DarkNetYoLoObj
+    {
+        public List<DarkNetYoLoPosition> darkNetYoLoPositions = new List<DarkNetYoLoPosition>();
+        public string FileName;
+    }
+    class DarkNetYoLoPosition
+    {
+        public string tag;
+        public float x;
+        public float y;
+        public float w;
+        public float h;
+    }
 }
