@@ -782,7 +782,7 @@ namespace MLTagimage
             List<string> Regtemp;
             foreach (var i in PointList.Items)
             {
-                darkNetYoLoPosition.Add(new DarkNetYoLoPosition());
+               
                 temp = i.ToString();
                 FileName = temp.Substring(0, imgsubName.selectindex(temp));
                 foreach(var item in loadedimgDetails)
@@ -798,8 +798,9 @@ namespace MLTagimage
 
                 foreach(var item in position)
                 {
+                    darkNetYoLoPosition.Add(new DarkNetYoLoPosition());
                     /* x1,y1,x2,y2,tag*/
-                    Regtemp= regset.RegSet(item, @"\d*");
+                    Regtemp = regset.RegSet(item, @"\d*");
                     darkNetYoLoPosition[darkNetYoLoPosition.Count-1].tag = Regtemp[4];
                     if (Convert.ToInt32(Regtemp[0])> Convert.ToInt32(Regtemp[2]))
                     {
@@ -829,8 +830,9 @@ namespace MLTagimage
 
                 darkNetYoLoObjs.Add(new DarkNetYoLoObj()
                 {
-                    FileName = FileName,darkNetYoLoPositions= darkNetYoLoPosition 
+                    FileName = FileName,darkNetYoLoPositions= new List<DarkNetYoLoPosition>(darkNetYoLoPosition) 
                 });
+                darkNetYoLoPosition.Clear();
             }
             return darkNetYoLoObjs;
         }
