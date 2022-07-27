@@ -28,7 +28,9 @@
                     </TransformGroup>
                 </Image.RenderTransform>
             </Image>
+
         </ScrollViewer>
+
         <Label x:Name="showlbl" Content="img座標" Height="32" VerticalAlignment="Top" Margin="5,0,10,0" Grid.Column="1"/>
 
 
@@ -44,8 +46,11 @@
         <Label x:Name="P2" Content="P2:" HorizontalAlignment="Left" Margin="6,46,0,0" Grid.Row="2" VerticalAlignment="Top" Height="26" Width="115" Grid.Column="1"/>
         <Button x:Name="clearP1P2but" Grid.Column="1" Content="清空(ESC)" HorizontalAlignment="Left" Margin="10,99,0,0" Grid.Row="2" VerticalAlignment="Top" Width="61" Click="clearP1P2_Click"/>
         <Button x:Name="RemovePointListitem" Grid.Column="1" Content="刪除(DEL)" HorizontalAlignment="Right" Margin="0,7,3,0" Grid.Row="2" VerticalAlignment="Top" Width="66" Height="21" Click="RemovePointListitem_Click"/>
-        <CheckBox x:Name="darknetYolo" Grid.Column="1" Content="darknetYolo格式" Margin="113,34,9,0" Grid.Row="2" VerticalAlignment="Top"/>
+        <CheckBox x:Name="darknetYolo" Grid.Column="1" Content="darknetYolo格式" Margin="113,34,9,0" Grid.Row="2" VerticalAlignment="Top" Checked="darknetYolo_Checked" Unchecked="darknetYolo_Unchecked"/>
 
+        <Grid />
+        <CheckBox x:Name="train" Grid.Column="1" Content="train" HorizontalAlignment="Left" Margin="113,57,0,0" Grid.Row="2" VerticalAlignment="Top"/>
+        <CheckBox x:Name="valid" Grid.Column="1" Content="valid" HorizontalAlignment="Left" Margin="113,79,0,0" Grid.Row="2" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

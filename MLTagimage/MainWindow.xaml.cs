@@ -82,6 +82,8 @@ namespace MLTagimage
         int spaceispressed = 0;
         int index = 0;
         List<LoadedimgDetail> loadedimgDetails = new List<LoadedimgDetail>();
+        PolyLineSegment PolyLine;
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -95,6 +97,8 @@ namespace MLTagimage
             }
             Tag.SelectedIndex = 0;
             showimg.Focusable = false;
+            valid.Visibility = Visibility.Hidden;
+            train.Visibility = Visibility.Hidden;
         }
 
         private void open_Click(object sender, RoutedEventArgs e)
@@ -495,6 +499,9 @@ namespace MLTagimage
                     {
                         PointList.Items.Add((imglist.SelectedItem as ListBoxItem).Content.ToString() + " " + P1.Content.ToString().Replace("P1:", "") +
                             "," + P2.Content.ToString().Replace("P2:", "") + "," + Tag.SelectedValue.ToString());
+                        Rectangle rect = new Rectangle();
+                        rect.X = Convert.ToInt32(P1.Content.ToString().Substring(0, P1.Content.ToString().IndexOf(",")));
+                        rect.Y= Convert.ToInt32(P1.Content.ToString().Substring(P1.Content.ToString().IndexOf(","))+1, P1.Content.ToString().Length-1);
                     }
                     clearP1P2();
                 }
@@ -841,7 +848,12 @@ namespace MLTagimage
             SaveFileDialog savepath = new SaveFileDialog();
             savepath.DefaultExt = ".txt";
             savepath.Filter = "Text documents (.txt)|*.txt";
-
+            if((bool)train.IsChecked)
+                savepath.FileName = "yolo_train";
+            else if((bool)valid.IsChecked)
+            {
+                savepath.FileName = "yolo_valid";
+            }    
             if (savepath.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 if(!Directory.Exists(savepath.FileName.Replace(".txt","")))
@@ -907,6 +919,19 @@ namespace MLTagimage
 
         }
 
+        private void darknetYolo_Checked(object sender, RoutedEventArgs e)
+        {
+            valid.Visibility = Visibility.Visible;
+            train.Visibility = Visibility.Visible;
+        }
+
+        private void darknetYolo_Unchecked(object sender, RoutedEventArgs e)
+        {
+            valid.IsChecked = false;
+            train.IsChecked = false;
+            valid.Visibility = Visibility.Hidden;
+            train.Visibility = Visibility.Hidden;
+        }
     }
     class imgsubName
     {
