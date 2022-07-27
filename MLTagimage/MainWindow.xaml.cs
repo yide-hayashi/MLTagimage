@@ -518,7 +518,7 @@ namespace MLTagimage
         {
             try
             {
-                if (PointList.IsKeyboardFocusWithin && PointList.Items.Count > 0 && PointList.SelectedIndex > 0)
+                if (PointList.IsKeyboardFocusWithin && PointList.Items.Count > 0 && PointList.SelectedIndex >= 0)
                 {
                     PointList.Items.RemoveAt(PointList.SelectedIndex);
                 }
@@ -530,7 +530,7 @@ namespace MLTagimage
         {
             try
             {
-                if(PointList.Items.Count>0 && PointList.SelectedIndex >0)
+                if(PointList.Items.Count>0 && PointList.SelectedIndex >=0)
                 {
                     PointList.Items.RemoveAt(PointList.SelectedIndex);
                 }
