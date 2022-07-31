@@ -99,6 +99,7 @@ namespace MLTagimage
             showimg.Focusable = false;
             valid.Visibility = Visibility.Hidden;
             train.Visibility = Visibility.Hidden;
+            rect.Visibility = Visibility.Hidden;
         }
 
         private void open_Click(object sender, RoutedEventArgs e)
@@ -155,27 +156,49 @@ namespace MLTagimage
             FileStream fstream;
             try
             {
-                fstream = new FileStream(imgdir.Content.ToString() + "\\" + (imglist.SelectedItem as ListBoxItem).Content.ToString(), FileMode.Open);
-                BitmapImage bitmap = new BitmapImage();
-
-                bitmap.BeginInit();
-                bitmap.StreamSource = fstream;
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.EndInit();
-
-
-                if (bitmap.PixelHeight != bitmap.Height && bitmap.PixelWidth != bitmap.Height)
+                rect.Visibility = Visibility.Hidden;
+                if (imglist.Items.Count!=0)
                 {
-                    MemoryStream ms = new MemoryStream();
-                    fstream.CopyTo(ms);
-                    Bitmap bmp = CreateThumbnail((Stream)ms, bitmap.PixelWidth, bitmap.PixelHeight);
-                    showimg.BeginInit(); //要開啟
-                    showimg.Stretch = Stretch.None;
-                    showimg.Width = bitmap.PixelWidth;
-                    showimg.Height = bitmap.PixelHeight;
-                    if (bmp != null)
+                    fstream = new FileStream(imgdir.Content.ToString() + "\\" + (imglist.SelectedItem as ListBoxItem).Content.ToString(), FileMode.Open);
+                    BitmapImage bitmap = new BitmapImage();
+
+                    bitmap.BeginInit();
+                    bitmap.StreamSource = fstream;
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.EndInit();
+
+
+                    if (bitmap.PixelHeight != bitmap.Height && bitmap.PixelWidth != bitmap.Height)
                     {
-                        showimg.Source = BitmapToBitmapSource(bmp);
+                        MemoryStream ms = new MemoryStream();
+                        fstream.CopyTo(ms);
+                        Bitmap bmp = CreateThumbnail((Stream)ms, bitmap.PixelWidth, bitmap.PixelHeight);
+                        showimg.BeginInit(); //要開啟
+                        showimg.Stretch = Stretch.None;
+                        showimg.Width = bitmap.PixelWidth;
+                        showimg.Height = bitmap.PixelHeight;
+                        if (bmp != null)
+                        {
+                            showimg.Source = BitmapToBitmapSource(bmp);
+                            loadedimgDetails.Add(new()
+                            {
+                                FileName = (imglist.SelectedItem as ListBoxItem).Content.ToString(),
+                                PixelWidth = bitmap.PixelWidth,
+                                PixelHeight = bitmap.PixelHeight
+                            });
+                        }
+                        else
+                            System.Windows.Forms.MessageBox.Show("圖片格式輸入有問題");
+                        showimg.EndInit(); //關閉
+                    }
+                    else
+                    {
+                        showimg.BeginInit(); //要開啟
+                        showimg.Stretch = Stretch.None;
+                        showimg.Width = bitmap.PixelWidth;
+                        showimg.Height = bitmap.PixelHeight;
+                        showimg.Source = bitmap;
+                        showimg.EndInit(); //關閉
                         loadedimgDetails.Add(new()
                         {
                             FileName = (imglist.SelectedItem as ListBoxItem).Content.ToString(),
@@ -183,23 +206,14 @@ namespace MLTagimage
                             PixelHeight = bitmap.PixelHeight
                         });
                     }
-                    else
-                        System.Windows.Forms.MessageBox.Show("圖片格式輸入有問題");
-                    showimg.EndInit(); //關閉
+                    
+                    imggrid.Height = bitmap.PixelHeight;
+                    imggrid.Width= bitmap.PixelWidth;
+                   
+                    fstream.Close();
+
                 }
-                else
-                {
-                    showimg.BeginInit(); //要開啟
-                    showimg.Stretch = Stretch.None;
-                    showimg.Width = bitmap.PixelWidth;
-                    showimg.Height = bitmap.PixelHeight;
-                    showimg.Source = bitmap;
-                    showimg.EndInit(); //關閉
-                    loadedimgDetails.Add(new() { FileName = (imglist.SelectedItem as ListBoxItem).Content.ToString(),
-                        PixelWidth = bitmap.PixelWidth, PixelHeight = bitmap.PixelHeight });
-                }
-                fstream.Close();
-                
+
             }
             catch(Exception ex)
             {
@@ -396,6 +410,9 @@ namespace MLTagimage
                 }
                  if (!Keyboard.IsKeyUp(Key.Space))
                 {
+                    System.Windows.Point point = new System.Windows.Point();
+                    Thickness thickness = new Thickness();
+                    int y1, y2,x1,x2;
                     sv.Focus();
                     if (spaceispressed % 2 == 0)
                     {
@@ -404,6 +421,29 @@ namespace MLTagimage
                     else
                     {
                         P2.Content = "P2:" + showlbl.Content;
+                        x1 = Convert.ToInt32(P1.Content.ToString().Substring(3, P1.Content.ToString().IndexOf(",") - 3));
+                        x2 = Convert.ToInt32(P2.Content.ToString().Substring(3, P2.Content.ToString().IndexOf(",") - 3));
+                        y1 = Convert.ToInt32(P1.Content.ToString().Substring(P1.Content.ToString().IndexOf(",") + 1,
+                            P1.Content.ToString().Length - P1.Content.ToString().IndexOf(",") - 1));
+                        y2 = Convert.ToInt32(P2.Content.ToString().Substring(P2.Content.ToString().IndexOf(",") + 1,
+                            P2.Content.ToString().Length - P2.Content.ToString().IndexOf(",") - 1));
+                        if (x2>x1 && y2>y1)
+                        {
+                            thickness.Left = Convert.ToInt32(P1.Content.ToString().Substring(3, P1.Content.ToString().IndexOf(",") - 3));
+                            thickness.Top = Convert.ToInt32(P1.Content.ToString().Substring(P1.Content.ToString().IndexOf(",") + 1,
+                                P1.Content.ToString().Length - P1.Content.ToString().IndexOf(",") - 1));
+
+                            rect.Margin = thickness;
+
+                            rect.Width =  x2 - x1;
+
+                            rect.Height = y2 - y1 ;
+                            rect.Visibility = Visibility.Visible;
+                        }
+                        else
+                        {
+                            P2.Content = "格式錯誤";
+                        }
                     }
                     spaceispressed++;
                 }
@@ -499,9 +539,11 @@ namespace MLTagimage
                     {
                         PointList.Items.Add((imglist.SelectedItem as ListBoxItem).Content.ToString() + " " + P1.Content.ToString().Replace("P1:", "") +
                             "," + P2.Content.ToString().Replace("P2:", "") + "," + Tag.SelectedValue.ToString());
+                        /*
                         Rectangle rect = new Rectangle();
                         rect.X = Convert.ToInt32(P1.Content.ToString().Substring(0, P1.Content.ToString().IndexOf(",")));
                         rect.Y= Convert.ToInt32(P1.Content.ToString().Substring(P1.Content.ToString().IndexOf(","))+1, P1.Content.ToString().Length-1);
+                        */
                     }
                     clearP1P2();
                 }
