@@ -546,6 +546,7 @@ namespace MLTagimage
                         */
                     }
                     clearP1P2();
+                    PointList.ScrollIntoView(PointList.Items[PointList.Items.Count-1]) ;
                 }
             }
             catch (Exception ex) { }
