@@ -317,16 +317,27 @@ namespace MLTagimage
         /// <param name="x">滑鼠座標傳入</param>
         public void MPLBcontain(string x)
         {
-            if(this.WindowState==WindowState.Maximized)
+            int windowsleft = 0,windowstop=0;
+            if (Left.ToString() == "NaN")
+                windowsleft = 0;
+            else
+                windowsleft = Convert.ToInt32(Left);
+
+            if (Top.ToString()=="NaN")
+                windowstop = 0;
+            else
+                windowstop = Convert.ToInt32(Top);
+            if (this.WindowState==WindowState.Maximized)
             {
                 showlbl.Content = (Convert.ToInt32(x.Substring(0, x.IndexOf(",")))+Convert.ToInt32(sv.ContentHorizontalOffset)).ToString() + "," +
-               (Convert.ToInt32(x.Substring(x.IndexOf(",") + 1, x.Length - x.IndexOf(",") - 1)) -(imgdir.Height * 2)+Convert.ToInt32(sv.ContentVerticalOffset)).ToString();
+               (Convert.ToInt32(x.Substring(x.IndexOf(",") + 1, x.Length - x.IndexOf(",") - 1)) - Convert.ToInt32(imgdir.Height * 2)+Convert.ToInt32(sv.ContentVerticalOffset)).ToString();
             }
             else
             {
-                showlbl.Content = (Convert.ToInt32(x.Substring(0, x.IndexOf(","))) - Left-4 + Convert.ToInt32(sv.ContentHorizontalOffset)).ToString() + "," 
-                +(Convert.ToInt32(x.Substring(x.IndexOf(",") + 1, x.Length - x.IndexOf(",") - 1)) - Top - (imgdir.Height * 2+10)+Convert.ToInt32(sv.ContentVerticalOffset)).ToString()
-               ;
+
+                showlbl.Content = (Convert.ToInt32(x.Substring(0, x.IndexOf(","))) - windowsleft - 4 + Convert.ToInt32(sv.ContentHorizontalOffset)).ToString() + "," 
+                +(Convert.ToInt32(x.Substring(x.IndexOf(",") + 1, x.Length - x.IndexOf(",") - 1)) - 
+                Convert.ToInt32(windowstop - (imgdir.Height * 2+10))+Convert.ToInt32(sv.ContentVerticalOffset)).ToString();
             }
            
         }
