@@ -334,10 +334,9 @@ namespace MLTagimage
             }
             else
             {
-
                 showlbl.Content = (Convert.ToInt32(x.Substring(0, x.IndexOf(","))) - windowsleft - 4 + Convert.ToInt32(sv.ContentHorizontalOffset)).ToString() + "," 
                 +(Convert.ToInt32(x.Substring(x.IndexOf(",") + 1, x.Length - x.IndexOf(",") - 1)) - 
-                Convert.ToInt32(windowstop - (imgdir.Height * 2+10))+Convert.ToInt32(sv.ContentVerticalOffset)).ToString();
+                Convert.ToInt32(windowstop +125- (imgdir.Height * 2+10))+Convert.ToInt32(sv.ContentVerticalOffset)).ToString();
             }
            
         }
@@ -438,16 +437,16 @@ namespace MLTagimage
                             P1.Content.ToString().Length - P1.Content.ToString().IndexOf(",") - 1));
                         y2 = Convert.ToInt32(P2.Content.ToString().Substring(P2.Content.ToString().IndexOf(",") + 1,
                             P2.Content.ToString().Length - P2.Content.ToString().IndexOf(",") - 1));
-                        if (x2>x1 && y2>y1)
+                          if (x2>x1 && y2>y1)
                         {
-                            thickness.Left = Convert.ToInt32(P1.Content.ToString().Substring(3, P1.Content.ToString().IndexOf(",") - 3));
+                            thickness.Left = Convert.ToInt32(P1.Content.ToString().Substring(3, P1.Content.ToString().IndexOf(",") - 3))-3;
                             thickness.Top = Convert.ToInt32(P1.Content.ToString().Substring(P1.Content.ToString().IndexOf(",") + 1,
-                                P1.Content.ToString().Length - P1.Content.ToString().IndexOf(",") - 1));
+                                P1.Content.ToString().Length - P1.Content.ToString().IndexOf(",") - 1))+4;
 
                             rect.Margin = thickness;
 
                             rect.Width =  x2 - x1;
-
+                              
                             rect.Height = y2 - y1 ;
                             rect.Visibility = Visibility.Visible;
                         }
